@@ -348,7 +348,7 @@ canvas {
 <div id="pagamento" class="hidden">
   <h2>💳 PAGAMENTO PIX</h2>
   <div class="info-box">
-    <p><strong>Valor:</strong> R$ <span id="valorPix">5,00</span></p>
+    <p><strong>Valor:</strong> R$ <span id="valorPix">9.90</span></p>
     <p>Acesso ilimitado por 30 dias!</p>
   </div>
   <input id="nomePix" placeholder="Nome completo">
@@ -532,8 +532,8 @@ canvas {
    CONFIGURAÇÕES
    =================================== */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwodCcmIKHxygDiJHk1t7RddkQ47aoxTYOzBPILx7Nsg-_ATF8xFOARQeQlTHxQaMDx/exec",
-  VALOR_PIX: "5,00",
+  API_URL: "COLE_AQUI_A_URL_DO_GOOGLE_APPS_SCRIPT",
+  VALOR_PIX: "5.00",
   CHAVE_PIX: "eebc1520-20d3-465c-98e9-fc012f51d58a",
   SENHA_ADMIN: "admin123"
 };
@@ -952,8 +952,19 @@ async function mostrarAdmin() {
     return;
   }
 
-  mostrarTela('admin');
-  carregarDashboard();
+  // Perguntar se quer jogar ou ver dashboard
+  const opcao = confirm('Pressione OK para JOGAR ou CANCELAR para ver o DASHBOARD');
+  
+  if (opcao) {
+    // Jogar como admin
+    usuarioLogado = { cpf: 'ADMIN', nome: 'Administrador' };
+    localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+    mostrarTela('dificuldade');
+  } else {
+    // Ver dashboard
+    mostrarTela('admin');
+    carregarDashboard();
+  }
 }
 
 async function carregarDashboard() {
