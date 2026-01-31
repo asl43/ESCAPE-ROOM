@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 Escape Room Pro - Desafio Máximo</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 500px;
+  width: 100%;
+  background: rgba(20, 20, 20, 0.95);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  border: 2px solid #8b0000;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #ff6b6b;
+  text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+input, select {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  background: rgba(40, 40, 40, 0.9);
+  border: 2px solid #444;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #8b0000;
+  box-shadow: 0 0 15px rgba(139, 0, 0, 0.5);
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  background: linear-gradient(135deg, #8b0000 0%, #b30000 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #b30000 0%, #d90000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(139, 0, 0, 0.5);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button.secondary {
+  background: linear-gradient(135deg, #444 0%, #666 100%);
+}
+
+button.secondary:hover {
+  background: linear-gradient(135deg, #555 0%, #777 100%);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.info-box {
+  background: rgba(139, 0, 0, 0.2);
+  border: 1px solid #8b0000;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 30px;
+  background: rgba(40, 40, 40, 0.9);
+  border-radius: 15px;
+  overflow: hidden;
+  margin: 20px 0;
+  border: 2px solid #444;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b0000 0%, #ff0000 100%);
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: rgba(40, 40, 40, 0.9);
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #444;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff6b6b;
+  display: block;
+  margin-top: 5px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+#qrcode {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+}
+
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 20px 30px;
+  border-radius: 10px;
+  font-weight: bold;
+  animation: slideIn 0.5s ease;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(400px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.alert.success {
+  background: #27ae60;
+}
+
+.alert.error {
+  background: #c0392b;
+}
+
+.hint-box {
+  background: rgba(255, 193, 7, 0.1);
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  text-align: center;
+}
+
+.hint-btn {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  color: #000;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.leaderboard {
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 20px 0;
+}
+
+.leaderboard-item {
+  background: rgba(40, 40, 40, 0.9);
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border-left: 4px solid #8b0000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leaderboard-item.top3 {
+  border-left: 4px solid #ffc107;
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.admin-panel {
+  text-align: left;
+}
+
+.admin-section {
+  background: rgba(40, 40, 40, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  border: 2px solid #444;
+}
+
+canvas {
+  max-width: 100%;
+  margin: 20px 0;
+}
+
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.difficulty-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.difficulty-btn {
+  padding: 15px;
+  background: rgba(40, 40, 40, 0.9);
+  border: 2px solid #444;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.difficulty-btn:hover {
+  border-color: #8b0000;
+  transform: scale(1.05);
+}
+
+.difficulty-btn.selected {
+  border-color: #8b0000;
+  background: rgba(139, 0, 0, 0.3);
+}
+
+.timer-display {
+  font-size: 48px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0;
+  color: #ff6b6b;
+  text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  font-family: 'Courier New', monospace;
+}
+
+.combo-counter {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(139, 0, 0, 0.9);
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  border: 2px solid #ff0000;
+  animation: pulse 1s infinite;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- TELA DE LOGIN -->
+<div id="login">
+  <h2>🔐 BEM-VINDO AO ESCAPE ROOM</h2>
+  <div class="info-box">
+    <p>Teste suas habilidades mentais e escape de 15 salas desafiadoras!</p>
+  </div>
+  <input id="cpfLogin" placeholder="Digite seu CPF ou Matrícula" maxlength="14">
+  <input id="nomeLogin" placeholder="Digite seu nome">
+  <button onclick="login()">🚀 ENTRAR NO DESAFIO</button>
+  <button class="secondary" onclick="mostrarRanking()">🏆 Ver Ranking</button>
+  <button class="secondary" onclick="mostrarAdmin()">⚙️ Admin (senha)</button>
+</div>
+
+<!-- TELA DE PAGAMENTO PIX -->
+<div id="pagamento" class="hidden">
+  <h2>💳 PAGAMENTO PIX</h2>
+  <div class="info-box">
+    <p><strong>Valor:</strong> R$ <span id="valorPix">9.90</span></p>
+    <p>Acesso ilimitado por 30 dias!</p>
+  </div>
+  <input id="nomePix" placeholder="Nome completo">
+  <input id="cpfPix" placeholder="CPF" maxlength="14">
+  <input id="emailPix" placeholder="E-mail (opcional)">
+  <button onclick="gerarPix()">📱 GERAR QR CODE PIX</button>
+  <div id="qrcode"></div>
+  <div id="pixInfo" class="info-box hidden">
+    <p>✅ QR Code gerado! Escaneie para pagar.</p>
+    <p><small>Após o pagamento, faça login novamente.</small></p>
+  </div>
+  <button class="secondary" onclick="voltarLogin()">⬅️ Voltar</button>
+</div>
+
+<!-- SELEÇÃO DE DIFICULDADE -->
+<div id="dificuldade" class="hidden">
+  <h2>🎯 ESCOLHA A DIFICULDADE</h2>
+  <div class="difficulty-selector">
+    <div class="difficulty-btn" onclick="selecionarDificuldade('facil')">
+      <div style="font-size: 30px;">😊</div>
+      <div><strong>FÁCIL</strong></div>
+      <div><small>10 salas</small></div>
+    </div>
+    <div class="difficulty-btn" onclick="selecionarDificuldade('medio')">
+      <div style="font-size: 30px;">😐</div>
+      <div><strong>MÉDIO</strong></div>
+      <div><small>15 salas</small></div>
+    </div>
+    <div class="difficulty-btn" onclick="selecionarDificuldade('dificil')">
+      <div style="font-size: 30px;">😰</div>
+      <div><strong>DIFÍCIL</strong></div>
+      <div><small>20 salas</small></div>
+    </div>
+  </div>
+  <button class="secondary" onclick="voltarLogin()">⬅️ Voltar</button>
+</div>
+
+<!-- TELA DO JOGO -->
+<div id="jogo" class="hidden">
+  <div class="timer-display">
+    <span id="minutos">00</span>:<span id="segundos">00</span>
+  </div>
+  
+  <div class="progress-bar">
+    <div class="progress-fill" id="progresso">
+      Sala <span id="salaAtual">1</span>/<span id="totalSalas">15</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-label">Acertos</span>
+      <span class="stat-value" id="acertos">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Erros</span>
+      <span class="stat-value" id="erros">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Dicas</span>
+      <span class="stat-value" id="dicasUsadas">0</span>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <h3 id="tituloSala">Sala 1</h3>
+    <p id="descricaoSala" style="font-size: 18px; margin-top: 10px;"></p>
+  </div>
+
+  <input id="resposta" placeholder="Digite sua resposta aqui..." autocomplete="off">
+  <button onclick="verificarResposta()">✅ CONFIRMAR RESPOSTA</button>
+  
+  <div class="hint-box">
+    <p>Precisa de ajuda? Use uma dica!</p>
+    <button class="hint-btn" onclick="usarDica()">💡 VER DICA (-10s)</button>
+  </div>
+
+  <button class="secondary" onclick="desistir()">❌ Desistir</button>
+</div>
+
+<!-- TELA FINAL -->
+<div id="final" class="hidden">
+  <h2>🎉 PARABÉNS!</h2>
+  <div class="info-box">
+    <h3>VOCÊ ESCAPOU!</h3>
+    <div class="timer-display" style="font-size: 36px;">
+      <span id="tempoFinal">00:00</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-label">Acertos</span>
+      <span class="stat-value" id="acertosFinal">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Erros</span>
+      <span class="stat-value" id="errosFinal">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Dicas</span>
+      <span class="stat-value" id="dicasFinal">0</span>
+    </div>
+  </div>
+
+  <input id="nomeRanking" placeholder="Digite seu nome para o ranking">
+  <button onclick="salvarRanking()">🏆 SALVAR NO RANKING</button>
+  <button class="secondary" onclick="jogarNovamente()">🔄 JOGAR NOVAMENTE</button>
+</div>
+
+<!-- TELA DE RANKING -->
+<div id="ranking" class="hidden">
+  <h2>🏆 RANKING GLOBAL</h2>
+  <div class="stats" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="stat-card">
+      <span class="stat-label">Total de Jogos</span>
+      <span class="stat-value" id="totalJogos">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Jogadores</span>
+      <span class="stat-value" id="totalJogadores">0</span>
+    </div>
+  </div>
+  <div class="leaderboard" id="listaRanking">
+    <div style="text-align: center; padding: 50px;">
+      <div class="loading"></div>
+      <p style="margin-top: 20px;">Carregando ranking...</p>
+    </div>
+  </div>
+  <button class="secondary" onclick="voltarLogin()">⬅️ Voltar</button>
+</div>
+
+<!-- PAINEL ADMIN -->
+<div id="admin" class="hidden">
+  <h2>⚙️ PAINEL ADMINISTRATIVO</h2>
+  
+  <div class="admin-section">
+    <h3>📊 Estatísticas Gerais</h3>
+    <div class="stats" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="stat-card">
+        <span class="stat-label">Total Jogos</span>
+        <span class="stat-value" id="adminTotalJogos">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Jogadores Únicos</span>
+        <span class="stat-value" id="adminJogadores">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Pagamentos</span>
+        <span class="stat-value" id="adminPagamentos">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Taxa Conclusão</span>
+        <span class="stat-value" id="adminTaxaConclusao">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <h3>📈 Tempo Médio por Sala</h3>
+    <canvas id="graficoSalas"></canvas>
+  </div>
+
+  <div class="admin-section">
+    <h3>👥 Top 10 Jogadores</h3>
+    <canvas id="graficoRanking"></canvas>
+  </div>
+
+  <div class="admin-section">
+    <h3>💰 Pagamentos Recentes</h3>
+    <div id="listaPagamentos"></div>
+  </div>
+
+  <button class="secondary" onclick="voltarLogin()">⬅️ Voltar</button>
+</div>
+
+</div>
+
+<script>
+/* ===================================
+   CONFIGURAÇÕES
+   =================================== */
+const CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycbwodCcmIKHxygDiJHk1t7RddkQ47aoxTYOzBPILx7Nsg-_ATF8xFOARQeQlTHxQaMDx/exec",
+  VALOR_PIX: "9.90",
+  CHAVE_PIX: "SUA_CHAVE_PIX_AQUI",
+  SENHA_ADMIN: "admin123"
+};
+
+/* ===================================
+   BANCO DE SALAS POR DIFICULDADE
+   =================================== */
+const SALAS = {
+  facil: [
+    {t: "🔍 Sala 1", d: "Quanto é 2 + 2?", r: "4", dica: "Uma conta bem simples!"},
+    {t: "🌟 Sala 2", d: "Qual cor resulta de azul + amarelo?", r: "verde", dica: "Mistura de cores primárias"},
+    {t: "🔢 Sala 3", d: "Próximo número: 2, 4, 6, ?", r: "8", dica: "Números pares"},
+    {t: "🌍 Sala 4", d: "Capital do Brasil?", r: "brasilia", dica: "Planejada por JK"},
+    {t: "📅 Sala 5", d: "Quantos dias tem uma semana?", r: "7", dica: "De domingo a sábado"},
+    {t: "🎵 Sala 6", d: "Quantas letras tem a palavra CASA?", r: "4", dica: "C-A-S-A"},
+    {t: "⏰ Sala 7", d: "Quantas horas tem um dia?", r: "24", dica: "Do início ao fim do dia"},
+    {t: "🔺 Sala 8", d: "Quantos lados tem um triângulo?", r: "3", dica: "Tri significa três"},
+    {t: "🌈 Sala 9", d: "O oposto de preto?", r: "branco", dica: "Cor da paz"},
+    {t: "🎯 Sala 10", d: "Para sair, digite: ESCAPE", r: "escape", dica: "Exatamente o que está escrito!"}
+  ],
+  medio: [
+    {t: "🧮 Sala 1", d: "Resolva: 2 + 2 × 2", r: "6", dica: "Multiplicação primeiro!"},
+    {t: "🔤 Sala 2", d: "Anagrama de ROMA", r: "amor", dica: "Sentimento forte"},
+    {t: "📐 Sala 3", d: "√16 = ?", r: "4", dica: "Raiz quadrada"},
+    {t: "🧩 Sala 4", d: "Complete: 1, 1, 2, 3, 5, ?", r: "8", dica: "Fibonacci"},
+    {t: "🌟 Sala 5", d: "Planeta mais próximo do Sol?", r: "mercurio", dica: "O menor planeta"},
+    {t: "🎭 Sala 6", d: "Quantas vogais tem no alfabeto?", r: "5", dica: "A, E, I, O, U"},
+    {t: "🔬 Sala 7", d: "Fórmula da água?", r: "h2o", dica: "2 hidrogênios e 1 oxigênio"},
+    {t: "🎨 Sala 8", d: "Quantas cores tem o arco-íris?", r: "7", dica: "ROY G. BIV"},
+    {t: "📚 Sala 9", d: "Autor de Dom Casmurro? (sobrenome)", r: "assis", dica: "Machado de..."},
+    {t: "🌍 Sala 10", d: "Maior país do mundo?", r: "russia", dica: "Na Europa e Ásia"},
+    {t: "🔢 Sala 11", d: "Número primo após 5?", r: "7", dica: "Divisível só por 1 e ele mesmo"},
+    {t: "⚡ Sala 12", d: "Símbolo químico do Ouro?", r: "au", dica: "Do latim Aurum"},
+    {t: "🎪 Sala 13", d: "Quantos jogadores tem um time de futebol?", r: "11", dica: "Em campo"},
+    {t: "🔐 Sala 14", d: "Cifra de César: C+3 = ?", r: "f", dica: "Avance 3 letras"},
+    {t: "🎉 Sala 15", d: "Digite LIBERDADE para sair", r: "liberdade", dica: "O que você busca!"}
+  ],
+  dificil: [
+    {t: "🧮 Sala 1", d: "Resolva: 15 × 4 - 18 ÷ 2", r: "51", dica: "Multiplicação e divisão primeiro"},
+    {t: "🔤 Sala 2", d: "Palavra com mais letras: PARALELEPIPEDO. Quantas?", r: "14", dica: "Conte cada letra"},
+    {t: "🧬 Sala 3", d: "Sequência: 2, 6, 12, 20, ?", r: "30", dica: "Diferenças: 4, 6, 8, 10..."},
+    {t: "🌌 Sala 4", d: "Velocidade da luz (km/s, número inteiro)", r: "300000", dica: "Aproximadamente 3×10⁵"},
+    {t: "🎯 Sala 5", d: "Binário 1010 em decimal?", r: "10", dica: "8+0+2+0"},
+    {t: "🔬 Sala 6", d: "Quantos elementos na tabela periódica? (aproximado)", r: "118", dica: "Cerca de 120"},
+    {t: "📐 Sala 7", d: "Soma dos ângulos internos de um hexágono?", r: "720", dica: "(n-2)×180, n=6"},
+    {t: "🌍 Sala 8", d: "Ano da Proclamação da República (BR)?", r: "1889", dica: "Século XIX, fim"},
+    {t: "🎭 Sala 9", d: "Autor de Hamlet? (sobrenome)", r: "shakespeare", dica: "Dramaturgo inglês"},
+    {t: "🔢 Sala 10", d: "Raiz cúbica de 64?", r: "4", dica: "4×4×4 = 64"},
+    {t: "⚡ Sala 11", d: "Lei de Ohm: V = R × ?", r: "i", dica: "Corrente elétrica"},
+    {t: "🧩 Sala 12", d: "Fibonacci: f(10) = ?", r: "55", dica: "0,1,1,2,3,5,8,13,21,34,55"},
+    {t: "🎨 Sala 13", d: "RGB do branco puro?", r: "255255255", dica: "Máximo em todos"},
+    {t: "🌟 Sala 14", d: "Constante Pi (2 casas)?", r: "3.14", dica: "Círculos e circunferências"},
+    {t: "💎 Sala 15", d: "Número de ouro (phi, 2 casas)?", r: "1.61", dica: "Proporção áurea"},
+    {t: "🔐 Sala 16", d: "ASCII do 'A' maiúsculo?", r: "65", dica: "Antes de B=66"},
+    {t: "🧮 Sala 17", d: "Fatorial de 5?", r: "120", dica: "5×4×3×2×1"},
+    {t: "📡 Sala 18", d: "Porta HTTP padrão?", r: "80", dica: "Navegação web"},
+    {t: "🎪 Sala 19", d: "Quantos bits tem 1 byte?", r: "8", dica: "8 dígitos binários"},
+    {t: "🏆 Sala 20", d: "Digite MESTRE para conquistar a vitória", r: "mestre", dica: "Você já é um!"}
+  ]
+};
+
+/* ===================================
+   VARIÁVEIS GLOBAIS
+   =================================== */
+let salaAtual = 0;
+let tempoSegundos = 0;
+let intervaloTempo = null;
+let dificuldadeEscolhida = 'medio';
+let salasJogo = [];
+let estatisticas = {
+  acertos: 0,
+  erros: 0,
+  dicasUsadas: 0
+};
+let usuarioLogado = {
+  nome: '',
+  cpf: ''
+};
+
+/* ===================================
+   FUNÇÕES DE NAVEGAÇÃO
+   =================================== */
+function mostrarTela(telaId) {
+  document.querySelectorAll('.container > div').forEach(div => {
+    div.classList.add('hidden');
+  });
+  document.getElementById(telaId).classList.remove('hidden');
+}
+
+function voltarLogin() {
+  mostrarTela('login');
+  resetarJogo();
+}
+
+/* ===================================
+   SISTEMA DE LOGIN
+   =================================== */
+async function login() {
+  const cpf = document.getElementById('cpfLogin').value.trim();
+  const nome = document.getElementById('nomeLogin').value.trim();
+
+  if (!cpf) {
+    mostrarAlerta('Digite seu CPF ou matrícula!', 'error');
+    return;
+  }
+
+  if (!nome) {
+    mostrarAlerta('Digite seu nome!', 'error');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${CONFIG.API_URL}?action=verificarAcesso&cpf=${cpf}`);
+    const data = await response.json();
+
+    if (data.success && data.temAcesso) {
+      usuarioLogado = { cpf, nome };
+      localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+      mostrarAlerta('Login realizado com sucesso!', 'success');
+      setTimeout(() => mostrarTela('dificuldade'), 1000);
+      
+      // Registrar acesso
+      await fetch(CONFIG.API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'registrarAcesso',
+          cpf: cpf,
+          nome: nome
+        })
+      });
+    } else {
+      mostrarTela('pagamento');
+      document.getElementById('cpfPix').value = cpf;
+      document.getElementById('nomePix').value = nome;
+    }
+  } catch (error) {
+    mostrarAlerta('Erro ao verificar acesso. Tente novamente.', 'error');
+    console.error(error);
+  }
+}
+
+/* ===================================
+   SISTEMA PIX
+   =================================== */
+async function gerarPix() {
+  const nome = document.getElementById('nomePix').value.trim();
+  const cpf = document.getElementById('cpfPix').value.trim();
+  const email = document.getElementById('emailPix').value.trim();
+
+  if (!nome || !cpf) {
+    mostrarAlerta('Preencha nome e CPF!', 'error');
+    return;
+  }
+
+  try {
+    const dadosPix = {
+      action: 'gerarPix',
+      nome: nome,
+      cpf: cpf,
+      email: email,
+      valor: CONFIG.VALOR_PIX,
+      chave: CONFIG.CHAVE_PIX
+    };
+
+    const response = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      body: JSON.stringify(dadosPix)
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Gerar QR Code
+      document.getElementById('qrcode').innerHTML = '';
+      new QRCode(document.getElementById('qrcode'), {
+        text: data.pixCopiaECola,
+        width: 256,
+        height: 256
+      });
+
+      document.getElementById('pixInfo').classList.remove('hidden');
+      mostrarAlerta('QR Code gerado! Pague e faça login.', 'success');
+    } else {
+      mostrarAlerta('Erro ao gerar PIX. Tente novamente.', 'error');
+    }
+  } catch (error) {
+    mostrarAlerta('Erro ao gerar PIX.', 'error');
+    console.error(error);
+  }
+}
+
+/* ===================================
+   SELEÇÃO DE DIFICULDADE
+   =================================== */
+function selecionarDificuldade(dificuldade) {
+  dificuldadeEscolhida = dificuldade;
+  salasJogo = [...SALAS[dificuldade]];
+  iniciarJogo();
+}
+
+/* ===================================
+   MECÂNICA DO JOGO
+   =================================== */
+function iniciarJogo() {
+  mostrarTela('jogo');
+  salaAtual = 0;
+  tempoSegundos = 0;
+  estatisticas = { acertos: 0, erros: 0, dicasUsadas: 0 };
+  
+  document.getElementById('totalSalas').textContent = salasJogo.length;
+  atualizarEstatisticas();
+  carregarSala();
+  iniciarCronometro();
+}
+
+function carregarSala() {
+  if (salaAtual >= salasJogo.length) {
+    finalizarJogo();
+    return;
+  }
+
+  const sala = salasJogo[salaAtual];
+  document.getElementById('tituloSala').textContent = sala.t;
+  document.getElementById('descricaoSala').textContent = sala.d;
+  document.getElementById('resposta').value = '';
+  document.getElementById('salaAtual').textContent = salaAtual + 1;
+  
+  const progresso = ((salaAtual + 1) / salasJogo.length) * 100;
+  document.getElementById('progresso').style.width = progresso + '%';
+  
+  document.getElementById('resposta').focus();
+}
+
+function verificarResposta() {
+  const resposta = document.getElementById('resposta').value.toLowerCase().trim();
+  const respostaCorreta = salasJogo[salaAtual].r.toLowerCase();
+
+  if (resposta === respostaCorreta) {
+    estatisticas.acertos++;
+    mostrarAlerta('✅ Correto! Próxima sala...', 'success');
+    salaAtual++;
+    setTimeout(() => {
+      carregarSala();
+      atualizarEstatisticas();
+    }, 1000);
+  } else {
+    estatisticas.erros++;
+    mostrarAlerta('❌ Resposta incorreta! Tente novamente.', 'error');
+    atualizarEstatisticas();
+  }
+}
+
+function usarDica() {
+  if (confirm('Usar uma dica adiciona 10 segundos ao tempo. Continuar?')) {
+    tempoSegundos += 10;
+    estatisticas.dicasUsadas++;
+    atualizarEstatisticas();
+    
+    const dica = salasJogo[salaAtual].dica;
+    mostrarAlerta(`💡 Dica: ${dica}`, 'success');
+  }
+}
+
+function desistir() {
+  if (confirm('Tem certeza que deseja desistir?')) {
+    pararCronometro();
+    voltarLogin();
+  }
+}
+
+/* ===================================
+   CRONÔMETRO
+   =================================== */
+function iniciarCronometro() {
+  intervaloTempo = setInterval(() => {
+    tempoSegundos++;
+    atualizarTempoDisplay();
+  }, 1000);
+}
+
+function pararCronometro() {
+  if (intervaloTempo) {
+    clearInterval(intervaloTempo);
+    intervaloTempo = null;
+  }
+}
+
+function atualizarTempoDisplay() {
+  const minutos = Math.floor(tempoSegundos / 60);
+  const segundos = tempoSegundos % 60;
+  document.getElementById('minutos').textContent = String(minutos).padStart(2, '0');
+  document.getElementById('segundos').textContent = String(segundos).padStart(2, '0');
+}
+
+function formatarTempo(segundos) {
+  const mins = Math.floor(segundos / 60);
+  const secs = segundos % 60;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+/* ===================================
+   FINALIZAÇÃO DO JOGO
+   =================================== */
+function finalizarJogo() {
+  pararCronometro();
+  mostrarTela('final');
+
+  document.getElementById('tempoFinal').textContent = formatarTempo(tempoSegundos);
+  document.getElementById('acertosFinal').textContent = estatisticas.acertos;
+  document.getElementById('errosFinal').textContent = estatisticas.erros;
+  document.getElementById('dicasFinal').textContent = estatisticas.dicasUsadas;
+  document.getElementById('nomeRanking').value = usuarioLogado.nome;
+}
+
+async function salvarRanking() {
+  const nome = document.getElementById('nomeRanking').value.trim();
+  
+  if (!nome) {
+    mostrarAlerta('Digite seu nome!', 'error');
+    return;
+  }
+
+  try {
+    const dados = {
+      action: 'salvarRanking',
+      nome: nome,
+      cpf: usuarioLogado.cpf,
+      tempo: tempoSegundos,
+      dificuldade: dificuldadeEscolhida,
+      acertos: estatisticas.acertos,
+      erros: estatisticas.erros,
+      dicas: estatisticas.dicasUsadas
+    };
+
+    const response = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      body: JSON.stringify(dados)
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      mostrarAlerta('✅ Salvo no ranking!', 'success');
+      setTimeout(() => mostrarRanking(), 1500);
+    }
+  } catch (error) {
+    mostrarAlerta('Erro ao salvar ranking.', 'error');
+    console.error(error);
+  }
+}
+
+function jogarNovamente() {
+  resetarJogo();
+  mostrarTela('dificuldade');
+}
+
+function resetarJogo() {
+  pararCronometro();
+  salaAtual = 0;
+  tempoSegundos = 0;
+  estatisticas = { acertos: 0, erros: 0, dicasUsadas: 0 };
+}
+
+/* ===================================
+   RANKING
+   =================================== */
+async function mostrarRanking() {
+  mostrarTela('ranking');
+  
+  try {
+    const response = await fetch(`${CONFIG.API_URL}?action=obterRanking`);
+    const data = await response.json();
+
+    if (data.success) {
+      document.getElementById('totalJogos').textContent = data.totalJogos;
+      document.getElementById('totalJogadores').textContent = data.totalJogadores;
+
+      const lista = document.getElementById('listaRanking');
+      lista.innerHTML = '';
+
+      data.ranking.forEach((jogador, index) => {
+        const item = document.createElement('div');
+        item.className = 'leaderboard-item' + (index < 3 ? ' top3' : '');
+        item.innerHTML = `
+          <div>
+            <strong>${index + 1}º - ${jogador.nome}</strong>
+            <div style="font-size: 12px; color: #aaa;">
+              ${jogador.dificuldade.toUpperCase()} | ${jogador.data}
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: #ff6b6b;">${formatarTempo(jogador.tempo)}</strong>
+            <div style="font-size: 12px; color: #aaa;">
+              ✓${jogador.acertos} ✗${jogador.erros}
+            </div>
+          </div>
+        `;
+        lista.appendChild(item);
+      });
+    }
+  } catch (error) {
+    document.getElementById('listaRanking').innerHTML = 
+      '<p style="text-align:center;">Erro ao carregar ranking.</p>';
+    console.error(error);
+  }
+}
+
+/* ===================================
+   PAINEL ADMIN
+   =================================== */
+async function mostrarAdmin() {
+  const senha = prompt('Digite a senha de administrador:');
+  
+  if (senha !== CONFIG.SENHA_ADMIN) {
+    mostrarAlerta('Senha incorreta!', 'error');
+    return;
+  }
+
+  mostrarTela('admin');
+  carregarDashboard();
+}
+
+async function carregarDashboard() {
+  try {
+    const response = await fetch(`${CONFIG.API_URL}?action=obterDashboard`);
+    const data = await response.json();
+
+    if (data.success) {
+      // Estatísticas gerais
+      document.getElementById('adminTotalJogos').textContent = data.totalJogos;
+      document.getElementById('adminJogadores').textContent = data.jogadoresUnicos;
+      document.getElementById('adminPagamentos').textContent = data.totalPagamentos;
+      document.getElementById('adminTaxaConclusao').textContent = data.taxaConclusao + '%';
+
+      // Gráfico de tempo médio por sala
+      if (data.temposPorSala && data.temposPorSala.length > 0) {
+        new Chart(document.getElementById('graficoSalas'), {
+          type: 'line',
+          data: {
+            labels: data.temposPorSala.map(s => 'Sala ' + s.sala),
+            datasets: [{
+              label: 'Tempo Médio (segundos)',
+              data: data.temposPorSala.map(s => s.tempo),
+              borderColor: '#ff6b6b',
+              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true }
+            }
+          }
+        });
+      }
+
+      // Gráfico de top jogadores
+      if (data.topJogadores && data.topJogadores.length > 0) {
+        new Chart(document.getElementById('graficoRanking'), {
+          type: 'bar',
+          data: {
+            labels: data.topJogadores.map(j => j.nome),
+            datasets: [{
+              label: 'Tempo (segundos)',
+              data: data.topJogadores.map(j => j.tempo),
+              backgroundColor: '#8b0000'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+
+      // Lista de pagamentos
+      const listaPag = document.getElementById('listaPagamentos');
+      listaPag.innerHTML = '';
+      
+      if (data.pagamentos && data.pagamentos.length > 0) {
+        data.pagamentos.forEach(pag => {
+          const item = document.createElement('div');
+          item.className = 'leaderboard-item';
+          item.innerHTML = `
+            <div>
+              <strong>${pag.nome}</strong>
+              <div style="font-size: 12px; color: #aaa;">${pag.cpf}</div>
+            </div>
+            <div style="text-align: right;">
+              <strong style="color: #27ae60;">R$ ${pag.valor}</strong>
+              <div style="font-size: 12px; color: #aaa;">${pag.data}</div>
+            </div>
+          `;
+          listaPag.appendChild(item);
+        });
+      } else {
+        listaPag.innerHTML = '<p style="text-align:center;">Nenhum pagamento registrado.</p>';
+      }
+    }
+  } catch (error) {
+    mostrarAlerta('Erro ao carregar dashboard.', 'error');
+    console.error(error);
+  }
+}
+
+/* ===================================
+   UTILITÁRIOS
+   =================================== */
+function atualizarEstatisticas() {
+  document.getElementById('acertos').textContent = estatisticas.acertos;
+  document.getElementById('erros').textContent = estatisticas.erros;
+  document.getElementById('dicasUsadas').textContent = estatisticas.dicasUsadas;
+}
+
+function mostrarAlerta(mensagem, tipo) {
+  const alerta = document.createElement('div');
+  alerta.className = `alert ${tipo}`;
+  alerta.textContent = mensagem;
+  document.body.appendChild(alerta);
+
+  setTimeout(() => {
+    alerta.remove();
+  }, 3000);
+}
+
+/* ===================================
+   INICIALIZAÇÃO
+   =================================== */
+window.addEventListener('load', () => {
+  // Verificar se há usuário logado
+  const usuarioSalvo = localStorage.getItem('usuario');
+  if (usuarioSalvo) {
+    usuarioLogado = JSON.parse(usuarioSalvo);
+  }
+
+  // Atalho para resposta (Enter)
+  document.getElementById('resposta').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      verificarResposta();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
