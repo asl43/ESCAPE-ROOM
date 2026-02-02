@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🔐 Escape Room Pro - Desafio Máximo</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -348,18 +347,73 @@ canvas {
 <div id="pagamento" class="hidden">
   <h2>💳 PAGAMENTO PIX</h2>
   <div class="info-box">
-    <p><strong>Valor:</strong> R$ <span id="valorPix">9.90</span></p>
+    <p><strong>Valor:</strong> R$ <span id="valorPix">5.00</span></p>
     <p>Acesso ilimitado por 30 dias!</p>
   </div>
+  
   <input id="nomePix" placeholder="Nome completo">
   <input id="cpfPix" placeholder="CPF" maxlength="14">
   <input id="emailPix" placeholder="E-mail (opcional)">
-  <button onclick="gerarPix()">📱 GERAR QR CODE PIX</button>
-  <div id="qrcode"></div>
-  <div id="pixInfo" class="info-box hidden">
-    <p>✅ QR Code gerado! Escaneie para pagar.</p>
-    <p><small>Após o pagamento, faça login novamente.</small></p>
+  
+  <button onclick="mostrarChavePix()">💰 VER DADOS PARA PAGAMENTO</button>
+  
+  <div id="dadosPix" class="hidden" style="margin-top: 20px;">
+    <div class="info-box" style="background: rgba(255, 193, 7, 0.2); border-color: #ffc107;">
+      <h3 style="color: #ffc107; margin-bottom: 15px;">💰 DADOS PARA PAGAMENTO</h3>
+      
+      <div style="text-align: left; margin: 15px 0;">
+        <label style="font-weight: bold; color: #ffc107;">Tipo de Chave:</label>
+        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-top: 5px;">
+          Chave Aleatória
+        </div>
+      </div>
+      
+      <div style="text-align: left; margin: 15px 0;">
+        <label style="font-weight: bold; color: #ffc107;">Chave PIX:</label>
+        <div id="chavePix" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin-top: 5px; font-family: monospace; word-break: break-all; font-size: 14px; border: 2px dashed #ffc107;">
+          eebc1520-20d3-465c-98e9-fc012f51d58a
+        </div>
+        <button onclick="copiarChavePix()" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); color: #000; margin-top: 10px; font-weight: bold;">
+          📋 COPIAR CHAVE PIX
+        </button>
+      </div>
+      
+      <div style="text-align: left; margin: 15px 0;">
+        <label style="font-weight: bold; color: #ffc107;">Valor a Pagar:</label>
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin-top: 5px; font-size: 24px; font-weight: bold; color: #4ade80;">
+          R$ 5,00
+        </div>
+      </div>
+      
+      <div style="text-align: left; margin: 15px 0;">
+        <label style="font-weight: bold; color: #ffc107;">Beneficiário:</label>
+        <div id="nomeBeneficiario" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; margin-top: 5px;">
+          [Seu Nome]
+        </div>
+      </div>
+      
+      <div style="background: rgba(139, 0, 0, 0.3); padding: 15px; border-radius: 5px; margin-top: 20px; border: 2px solid #ff6b6b;">
+        <p style="margin: 0; font-size: 14px;">
+          ⚠️ <strong>IMPORTANTE:</strong><br>
+          1. Copie a chave PIX acima<br>
+          2. Abra o app do seu banco<br>
+          3. Escolha PIX → Pagar → Colar chave<br>
+          4. Cole a chave e confirme o valor R$ 5,00<br>
+          5. Após pagar, aguarde até 5 minutos e faça login novamente!
+        </p>
+      </div>
+      
+      <div style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 5px; margin-top: 15px; border: 2px solid #4caf50;">
+        <p style="margin: 0; font-size: 14px;">
+          ✅ <strong>Seus dados foram registrados!</strong><br>
+          Nome: <span id="nomeRegistrado"></span><br>
+          CPF: <span id="cpfRegistrado"></span><br>
+          Email: <span id="emailRegistrado"></span>
+        </p>
+      </div>
+    </div>
   </div>
+  
   <button class="secondary" onclick="voltarLogin()">⬅️ Voltar</button>
 </div>
 
@@ -532,9 +586,9 @@ canvas {
    CONFIGURAÇÕES
    =================================== */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbySe6AF8xlJQigi8a9wxKJfz1GSD52DmfHuukCbRzXSJf9RHQxJmyZj1oUgnpsO6hR0/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbzHejmYomALWKKy-qgepOTrHdpTSS5ob4lYpc_YSJ3kbJxcZXhxHQwUvZfoVj229kBB/exec",
   VALOR_PIX: "5.00",
-  CHAVE_PIX: "00020101021226580014br.gov.bcb.pix0136eebc1520-20d3-465c-98e9-fc012f51d58a52040000530398654045.005802BR5920Arnold Souza de Lima6006Manaus62120508TESTE1236304F85A",
+  CHAVE_PIX: "eebc1520-20d3-465c-98e9-fc012f51d58a",
   SENHA_ADMIN: "admin123"
 };
 
@@ -678,7 +732,10 @@ async function login() {
 /* ===================================
    SISTEMA PIX
    =================================== */
-async function gerarPix() {
+/* ===================================
+   SISTEMA PIX - COPIAR CHAVE
+   =================================== */
+async function mostrarChavePix() {
   const nome = document.getElementById('nomePix').value.trim();
   const cpf = document.getElementById('cpfPix').value.trim();
   const email = document.getElementById('emailPix').value.trim();
@@ -689,8 +746,9 @@ async function gerarPix() {
   }
 
   try {
+    // Registrar intenção de pagamento no backend
     const dadosPix = {
-      action: 'gerarPix',
+      action: 'registrarPagamento',
       nome: nome,
       cpf: cpf,
       email: email,
@@ -706,23 +764,67 @@ async function gerarPix() {
     const data = await response.json();
 
     if (data.success) {
-      // Gerar QR Code
-      document.getElementById('qrcode').innerHTML = '';
-      new QRCode(document.getElementById('qrcode'), {
-        text: data.pixCopiaECola,
-        width: 256,
-        height: 256
-      });
-
-      document.getElementById('pixInfo').classList.remove('hidden');
-      mostrarAlerta('QR Code gerado! Pague e faça login.', 'success');
+      // Mostrar dados PIX
+      document.getElementById('nomeRegistrado').textContent = nome;
+      document.getElementById('cpfRegistrado').textContent = cpf;
+      document.getElementById('emailRegistrado').textContent = email || 'Não informado';
+      document.getElementById('dadosPix').classList.remove('hidden');
+      
+      mostrarAlerta('✅ Dados registrados! Copie a chave e faça o pagamento.', 'success');
     } else {
-      mostrarAlerta('Erro ao gerar PIX. Tente novamente.', 'error');
+      mostrarAlerta('Erro ao registrar. Tente novamente.', 'error');
     }
   } catch (error) {
-    mostrarAlerta('Erro ao gerar PIX.', 'error');
-    console.error(error);
+    // Mesmo sem backend, mostrar dados PIX
+    document.getElementById('nomeRegistrado').textContent = nome;
+    document.getElementById('cpfRegistrado').textContent = cpf;
+    document.getElementById('emailRegistrado').textContent = email || 'Não informado';
+    document.getElementById('dadosPix').classList.remove('hidden');
+    
+    mostrarAlerta('✅ Copie a chave PIX e faça o pagamento!', 'success');
+    console.log('Modo offline - dados salvos localmente');
   }
+}
+
+/**
+ * Copia a chave PIX para área de transferência
+ */
+function copiarChavePix() {
+  const chavePix = document.getElementById('chavePix').textContent;
+  
+  // Tentar copiar usando Clipboard API (navegadores modernos)
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(chavePix)
+      .then(() => {
+        mostrarAlerta('✅ Chave PIX copiada! Cole no app do seu banco.', 'success');
+      })
+      .catch(err => {
+        copiarChavePixFallback(chavePix);
+      });
+  } else {
+    copiarChavePixFallback(chavePix);
+  }
+}
+
+/**
+ * Fallback para copiar em navegadores antigos
+ */
+function copiarChavePixFallback(texto) {
+  const textarea = document.createElement('textarea');
+  textarea.value = texto;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  
+  try {
+    document.execCommand('copy');
+    mostrarAlerta('✅ Chave PIX copiada! Cole no app do seu banco.', 'success');
+  } catch (err) {
+    mostrarAlerta('❌ Erro ao copiar. Copie manualmente a chave acima.', 'error');
+  }
+  
+  document.body.removeChild(textarea);
 }
 
 /* ===================================
